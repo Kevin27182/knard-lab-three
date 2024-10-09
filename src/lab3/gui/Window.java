@@ -10,12 +10,12 @@ import java.awt.*;
 
 public class Window extends JFrame {
 
-    private Palette palette = Palette.LIGHT;
+    private Theme theme = Theme.LIGHT;
 
     // Construct a new window
     public Window() {
         setTitle("New Main");
-        setPreferredSize(new Dimension(Theme.WINDOW_WIDTH, Theme.WINDOW_HEIGHT));
+        setPreferredSize(new Dimension(Aesthetics.WINDOW_WIDTH, Aesthetics.WINDOW_HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setVisible(true);
@@ -28,13 +28,13 @@ public class Window extends JFrame {
         setTitle(name);
     }
 
-    // Update palette
-    public void setPalette(Palette palette) {
-        this.palette = palette;
+    // Update theme
+    public void setTheme(Theme theme) {
+        this.theme = theme;
     }
 
-    // Return palette
-    public Palette getPalette() {
-        return palette;
+    // Return theme
+    public Theme getTheme() {
+        return theme;
     }
 }
