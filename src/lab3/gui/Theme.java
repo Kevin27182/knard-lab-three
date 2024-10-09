@@ -9,6 +9,8 @@ import java.awt.*;
 
 public class Theme {
 
+    public static enum Type {LIGHT, DARK};
+
     public static String WINDOW_TITLE = "Wine Data Analysis";
     public static int WINDOW_WIDTH = 800;
     public static int WINDOW_HEIGHT = 600;

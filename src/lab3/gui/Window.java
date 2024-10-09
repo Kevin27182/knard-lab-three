@@ -10,6 +10,8 @@ import java.awt.*;
 
 public class Window extends JFrame {
 
+    private Palette palette = Palette.LIGHT;
+
     // Construct a new window
     public Window() {
         setTitle("New Main");
@@ -24,5 +26,15 @@ public class Window extends JFrame {
     public Window(String name) {
         this();
         setTitle(name);
+    }
+
+    // Update palette
+    public void setPalette(Palette palette) {
+        this.palette = palette;
+    }
+
+    // Return palette
+    public Palette getPalette() {
+        return palette;
     }
 }
