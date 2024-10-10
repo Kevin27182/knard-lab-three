@@ -54,7 +54,7 @@ class Theme {
     public enum Type {LIGHT, DARK}
 
     // Update the theme type
-    public static void setTheme(Type type) {
+    public static void setTheme(Type type, Runnable update) {
 
         switch (type) {
 
@@ -78,5 +78,12 @@ class Theme {
                 SUBTEXT = DARK_SUBTEXT;
                 break;
         }
+
+        update.run();
+    }
+
+    // Update the theme type without updating
+    public static void setTheme(Type type) {
+        setTheme(type, () -> {});
     }
 }
