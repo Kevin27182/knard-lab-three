@@ -47,13 +47,13 @@ class Theme {
     public static Color BACKGROUND_2 = LIGHT_BACKGROUND_2;
     public static Color BACKGROUND_3 = LIGHT_BACKGROUND_3;
     public static Color BACKGROUND_4 = LIGHT_BACKGROUND_4;
-    public static Color TEXT = new Color(0x191D23);
-    public static Color SUBTEXT = new Color(0x2F3039);
+    public static Color TEXT = LIGHT_TEXT;
+    public static Color SUBTEXT = LIGHT_SUBTEXT;
 
     // Enum for theme switching
     public enum Type {LIGHT, DARK}
 
-    // Update the theme type
+    // Set the theme type
     public static void setTheme(Type type, Runnable update) {
 
         switch (type) {
@@ -82,7 +82,7 @@ class Theme {
         update.run();
     }
 
-    // Update the theme type without updating
+    // Set the theme type without updating UI
     public static void setTheme(Type type) {
         setTheme(type, () -> {});
     }
