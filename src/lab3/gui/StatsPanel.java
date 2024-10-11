@@ -2,9 +2,9 @@ package lab3.gui;
 
 import javax.swing.*;
 
-public class ExamplePanel2 extends JPanel {
+public class StatsPanel extends JPanel {
 
-    public ExamplePanel2() {
+    public StatsPanel() {
         setBackground(Theme.CORAL);
     }
 }

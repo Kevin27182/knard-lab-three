@@ -2,9 +2,9 @@ package lab3.gui;
 
 import javax.swing.*;
 
-public class ExamplePanel1 extends JPanel {
+public class ChartPanel extends JPanel {
 
-    public ExamplePanel1() {
+    public ChartPanel() {
         setBackground(Theme.BLUE_3);
     }
 }
