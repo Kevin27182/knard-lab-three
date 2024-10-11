@@ -1,3 +1,8 @@
+
+// Title: ChartPanel.java
+// Author: Kevin Nard
+// Panel that shows a chart
+
 package lab3.gui;
 
 import javax.swing.*;
