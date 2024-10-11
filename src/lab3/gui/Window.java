@@ -14,6 +14,7 @@ public class Window extends JFrame {
     public Window() {
         setTitle("New Main");
         setPreferredSize(new Dimension(Theme.WINDOW_WIDTH, Theme.WINDOW_HEIGHT));
+        setMinimumSize(new Dimension(Theme.WINDOW_WIDTH, Theme.WINDOW_HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setVisible(true);
@@ -24,5 +25,10 @@ public class Window extends JFrame {
     public Window(String name) {
         this();
         setTitle(name);
+    }
+
+    public void revalidateEverything() {
+        repaint();
+        revalidate();
     }
 }
