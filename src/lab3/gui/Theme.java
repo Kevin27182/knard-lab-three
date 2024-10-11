@@ -1,7 +1,7 @@
 
 // Title: Theme.java
 // Author: Kevin Nard
-// Controller for UI theme
+// Static constants for UI theme
 
 package lab3.gui;
 
@@ -9,7 +9,6 @@ import java.awt.*;
 
 class Theme {
 
-    // Theme constants for general use
     public static final Color LIGHT_BACKGROUND_1 = new Color(0xced6e0);
     public static final Color LIGHT_BACKGROUND_2 = new Color(0xdfe4ea);
     public static final Color LIGHT_BACKGROUND_3 = new Color(0xf1f2f6);
