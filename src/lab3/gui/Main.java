@@ -9,9 +9,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Set the program theme
-        Theme.setTheme(Theme.Type.DARK);
-
         // Main container for UI elements
         Window window = new Window(Theme.WINDOW_TITLE);
     }
