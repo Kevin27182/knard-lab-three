@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -238,37 +237,33 @@ public class DataFrame {
         var newHeader = new ArrayList<>(header);
 
         // Sort the copied dataframe
-        newData.sort(new Comparator<>() {
+        // Compare the two data elements by numeric value or default string comparison
+        newData.sort((o1, o2) -> {
 
-            // Compare the two data elements by numeric value or default string comparison
-            @Override
-            public int compare(ArrayList<String> o1, ArrayList<String> o2) {
+            // Switch order for comparison if ascending = false
+            String a = o1.get(columnIndex);
+            String b = o2.get(columnIndex);
 
-                // Switch order for comparison if ascending = false
-                String a = o1.get(columnIndex);
-                String b = o2.get(columnIndex);
-
-                // Convert strings to doubles and compare numerically
-                if (isNumeric(a) && isNumeric(b)) {
-                    Double aDouble = Double.parseDouble(a);
-                    Double bDouble = Double.parseDouble(b);
-                    return(aDouble.compareTo(bDouble));
-                }
-
-                // Compare alphabetically
-                return a.compareToIgnoreCase(b);
+            // Convert strings to doubles and compare numerically
+            if (isNumeric(a) && isNumeric(b)) {
+                Double aDouble = Double.parseDouble(a);
+                Double bDouble = Double.parseDouble(b);
+                return(aDouble.compareTo(bDouble));
             }
 
-            // Check if string is numeric
-            private boolean isNumeric(String string) {
-                return Pattern.matches(NUMERIC_REGEX, string);
-            }
+            // Compare alphabetically
+            return a.compareToIgnoreCase(b);
         });
 
         if (!ascending)
             newData = new ArrayList<>(newData.reversed());
 
         return new DataFrame(newData, newHeader);
+    }
+
+    // Check if string is numeric
+    private boolean isNumeric(String string) {
+        return Pattern.matches(NUMERIC_REGEX, string);
     }
 
     // Override: ascending = true by default
@@ -302,7 +297,9 @@ public class DataFrame {
     public DataFrame filterNumeric(Predicate<Double> condition, int columnIndex) {
 
         // Filter data and cast to arrayList
-        var newDataStream = data.stream().filter(e -> condition.test(Double.parseDouble(e.get(columnIndex))));
+        var newDataStream = data.stream()
+                .filter(e -> isNumeric(e.get(columnIndex)))
+                .filter(e -> condition.test(Double.parseDouble(e.get(columnIndex))));
         return filterHelper(newDataStream);
     }
 
