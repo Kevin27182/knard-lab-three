@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -17,6 +18,19 @@ public class DataFrame {
     private ArrayList<String> header;
     private ArrayList<ArrayList<String>> data = new ArrayList<>();
     private final String CSV_REGEX = "[,\n]";
+    private final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
+
+
+    // Construct a new data frame from data and header parameters
+    private DataFrame(ArrayList<ArrayList<String>> data, ArrayList<String> header) {
+        this.data = data;
+        this.header = header;
+    }
+
+    // Construct a new data frame from data parameter, header null by default
+    private DataFrame(ArrayList<ArrayList<String>> data) {
+        this(data, null);
+    }
 
     // Construct a new data frame
     public DataFrame(String path) throws IOException {
@@ -26,6 +40,22 @@ public class DataFrame {
     // Construct a new data frame, header optional
     public DataFrame(String path, boolean header) throws IOException {
         readCSV(path, header);
+    }
+
+    // Construct a new DataFrame from an existing Data Frame
+    public DataFrame(DataFrame frame) {
+        this.header = new ArrayList<>(frame.getHeader());
+        this.data = new ArrayList<>(frame.getData());
+    }
+
+    // Return the header
+    private ArrayList<String> getHeader() {
+        return header;
+    }
+
+    // Return the data
+    private ArrayList<ArrayList<String>> getData() {
+        return data;
     }
 
     // Read in data from a csv file
@@ -90,10 +120,9 @@ public class DataFrame {
         Stream<ArrayList<String>> startDataStream = data.stream().limit(3);
         Stream<ArrayList<String>> endDataStream = data.stream().skip(data.size() - 3);
 
-        // Add the header to `contents` if it exists and reformat startDataStream
+        // Add the header to `contents` if it exists
         if (header != null) {
             contents += header + "\n";
-            startDataStream = data.stream().skip(1).limit(3);
         }
 
         // Add the first three rows to `contents`
@@ -114,6 +143,10 @@ public class DataFrame {
 
     // Return an ArrayList representation of a column, access by name
     public ArrayList<String> getColumn(String column) {
+
+        // Return an empty ArrayList if there is no header
+        if (header == null)
+            return new ArrayList<>();
 
         int columnIndex = header.indexOf(column);
         return getColumnAtIndex(columnIndex);
@@ -155,5 +188,72 @@ public class DataFrame {
     // Return the number of columns
     public int getNumberOfColumns() {
         return data.getFirst().size();
+    }
+
+    // Return a new DataFrame sorted by `column`, access by name
+    public DataFrame sortByColumn(String column, boolean ascending) {
+
+        // If header does not exist, throw an exception
+        if (header == null)
+            throw new RuntimeException("[ERROR] Header not present: cannot access by column name.");
+
+        // Get index of column
+        int columnIndex = header.indexOf(column);
+
+        return sortByColumnIndex(columnIndex, ascending);
+    }
+
+    // Override: ascending = true by default
+    public DataFrame sortByColumn(String column) {
+        return sortByColumn(column, true);
+    }
+
+    // Return a new DataFrame sorted by `column`, access by index
+    public DataFrame sortByColumnIndex(int columnIndex, boolean ascending) {
+
+        // If columnIndex is out of range, throw an exception
+        if (columnIndex < 0 || columnIndex >= getNumberOfColumns())
+            throw new RuntimeException("[ERROR] Invalid index: cannot access column at index " + columnIndex + ".");
+
+        var newData = new ArrayList<>(data);
+        var newHeader = new ArrayList<>(header);
+
+        // Sort the copied dataframe
+        newData.sort(new Comparator<>() {
+
+            // Compare the two data elements by numeric value or default string comparison
+            @Override
+            public int compare(ArrayList<String> o1, ArrayList<String> o2) {
+
+                // Switch order for comparison if ascending = false
+                String a = o1.get(columnIndex);
+                String b = o2.get(columnIndex);
+
+                // Convert strings to doubles and compare numerically
+                if (isNumeric(a) && isNumeric(b)) {
+                    Double aDouble = Double.parseDouble(a);
+                    Double bDouble = Double.parseDouble(b);
+                    return(aDouble.compareTo(bDouble));
+                }
+
+                // Compare alphabetically
+                return a.compareToIgnoreCase(b);
+            }
+
+            // Check if string is numeric
+            private boolean isNumeric(String string) {
+                return Pattern.matches(NUMERIC_REGEX, string);
+            }
+        });
+
+        if (!ascending)
+            newData = new ArrayList<>(newData.reversed());
+
+        return new DataFrame(newData, newHeader);
+    }
+
+    // Override: ascending = true by default
+    public DataFrame sortByColumnIndex(int columnIndex) {
+        return sortByColumnIndex(columnIndex, true);
     }
 }
