@@ -295,5 +295,14 @@ public class DataFrame {
         return new DataFrame(newData, newHeader);
     }
 
+    // Return the item located at the given row and column indexes
+    public String getItemAt(int rowIndex, int columnIndex) {
+        return data.get(rowIndex).get(columnIndex);
+    }
 
+    // Return the item located at the given row index and column name
+    public String getItemAt(int rowIndex, String column) {
+        int columnIndex = getColumnIndex(column);
+        return data.get(rowIndex).get(columnIndex);
+    }
 }
