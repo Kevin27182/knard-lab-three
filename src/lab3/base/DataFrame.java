@@ -121,8 +121,8 @@ public class DataFrame {
     // Return an ArrayList representation of a column, access by index
     public ArrayList<String> getColumnAtIndex(int columnIndex) {
 
-        // If the column is not found, return an empty ArrayList
-        if (columnIndex == -1)
+        // If the column index is out of range, return an empty ArrayList
+        if (columnIndex < 0 || columnIndex >= data.getFirst().size())
             return new ArrayList<>();
 
         // Extract a List of the elements corresponding to `column`
