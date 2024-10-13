@@ -110,4 +110,20 @@ public class DataFrame {
 
         return contents;
     }
+
+    // Return an ArrayList representation of a column
+    public ArrayList<String> getColumn(String column) {
+
+        int columnIndex = header.indexOf(column);
+
+        // If the column is not found, return an empty ArrayList
+        if (columnIndex == -1)
+            return new ArrayList<>();
+
+        // Extract a List of the elements corresponding to `column`
+        var columnList = data.stream().map(e -> e.get(columnIndex)).toList();
+
+        // Cast to ArrayList<> and return
+        return new ArrayList<>(columnList);
+    }
 }
