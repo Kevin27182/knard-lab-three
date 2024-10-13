@@ -286,11 +286,31 @@ public class DataFrame {
     // Return a DataFrame filtered by condition, access by index
     public DataFrame filter(Predicate<String> condition, int columnIndex) {
 
-        var newHeader = new ArrayList<>(header);
-
         // Filter data and cast to ArrayList
         var newDataStream = data.stream().filter(e -> condition.test(e.get(columnIndex)));
-        var newData = new ArrayList<>(newDataStream.toList());
+        return filterHelper(newDataStream);
+    }
+
+    // Return a DataFrame filtered by numeric condition, access by name
+    public DataFrame filterNumeric(Predicate<Double> condition, String column) {
+
+        int columnIndex = getColumnIndex(column);
+        return filterNumeric(condition, columnIndex);
+    }
+
+    // Return a DataFrame filtered by numeric condition, access by index
+    public DataFrame filterNumeric(Predicate<Double> condition, int columnIndex) {
+
+        // Filter data and cast to arrayList
+        var newDataStream = data.stream().filter(e -> condition.test(Double.parseDouble(e.get(columnIndex))));
+        return filterHelper(newDataStream);
+    }
+
+    // Returns a DataFrame from filtered data stream
+    private DataFrame filterHelper(Stream<ArrayList<String>> dataStream) {
+
+        var newHeader = new ArrayList<>(header);
+        var newData = new ArrayList<>(dataStream.toList());
 
         return new DataFrame(newData, newHeader);
     }
