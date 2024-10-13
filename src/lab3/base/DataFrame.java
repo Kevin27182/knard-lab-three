@@ -111,10 +111,15 @@ public class DataFrame {
         return contents;
     }
 
-    // Return an ArrayList representation of a column
+    // Return an ArrayList representation of a column, access by name
     public ArrayList<String> getColumn(String column) {
 
         int columnIndex = header.indexOf(column);
+        return getColumnAtIndex(columnIndex);
+    }
+
+    // Return an ArrayList representation of a column, access by index
+    public ArrayList<String> getColumnAtIndex(int columnIndex) {
 
         // If the column is not found, return an empty ArrayList
         if (columnIndex == -1)
