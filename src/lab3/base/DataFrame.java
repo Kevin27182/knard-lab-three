@@ -108,7 +108,8 @@ public class DataFrame {
         for (ArrayList<String> strings : endList)
             contents = contents.concat(strings + "\n");
 
-        return contents;
+        // Remove the final newline character and return contents
+        return contents.substring(0, contents.length() - 1);
     }
 
     // Return an ArrayList representation of a column, access by name
