@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 public class DataFrame {
 
-    private ArrayList<String> header;
-    private ArrayList<ArrayList<String>> data = new ArrayList<>();
-    private final String CSV_REGEX = "[,\n]";
-    private final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
+    private final ArrayList<String> header;
+    private final ArrayList<ArrayList<String>> data;
+    private static final String CSV_REGEX = "[,\n]";
+    private static final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
 
     // Construct an empty data frame
     public DataFrame() {
@@ -45,7 +45,7 @@ public class DataFrame {
 
     // Construct a new data frame, header optional
     public DataFrame(String path, boolean header) throws IOException {
-        readCSV(path, header);
+        this(readCSV(path, header));
     }
 
     // Construct a new DataFrame from an existing Data Frame
@@ -65,23 +65,28 @@ public class DataFrame {
     }
 
     // Read in data from a csv file
-    private void readCSV(String path) throws IOException {
+    public static void readCSV(String path) throws IOException {
         readCSV(path, true);
     }
 
     // Read in data from a csv file, header optional
-    private void readCSV(String path, boolean header) throws IOException {
+    public static DataFrame readCSV(String path, boolean header) throws IOException {
+
+        ArrayList<String> newHeader = null;
+        ArrayList<ArrayList<String>> newData;
 
         // Get the header from the CSV at `path`
         if (header)
-            this.header = getHeaderFromFile(path);
+             newHeader = getHeaderFromFile(path);
 
         // Get the data from the CSV at `path`
-        this.data = getDataFromFile(path, header);
+        newData = getDataFromFile(path, header);
+
+        return new DataFrame(newData, newHeader);
     }
 
     // Get the header from CSV at `path`
-    private ArrayList<String> getHeaderFromFile(String path) throws IOException {
+    private static ArrayList<String> getHeaderFromFile(String path) throws IOException {
 
         Path pathObj = Path.of(path);
         var header = new ArrayList<String>();
@@ -99,17 +104,21 @@ public class DataFrame {
     }
 
     // Get the data from CSV at `path`
-    private ArrayList<ArrayList<String>> getDataFromFile(String path, boolean header) throws IOException {
+    private static ArrayList<ArrayList<String>> getDataFromFile(String path, boolean header) throws IOException {
 
         Path pathObj = Path.of(path);
         var data = new ArrayList<ArrayList<String>>();
 
+        // Create a new stream from CSV at `path`
         try (Stream<String> lines = Files.lines(pathObj)) {
 
+            // Create new stream and skip the first line if a header is present
             Stream<String> dataStream = lines;
             if (header)
                 dataStream = dataStream.skip(1);
 
+            // For each line in the data stream, split with regex,
+            // convert to ArrayList, and add to `data` instance variable
             dataStream.forEach(line -> {
                 var lineList = Pattern.compile(CSV_REGEX).splitAsStream(line).toList();
                 data.add(new ArrayList<>(lineList));
@@ -199,13 +208,11 @@ public class DataFrame {
     // Return index of `column` or throw RuntimeException if column does not exist
     public int getColumnIndex(String column) {
 
-        int columnIndex = header.indexOf(column);
-
         // If header does not exist, throw an exception
         if (header == null)
             throw new RuntimeException("[ERROR] Header not present: cannot access by column name.");
 
-        return columnIndex;
+        return header.indexOf(column);
     }
 
     // Return a new DataFrame sorted by `column`, access by name

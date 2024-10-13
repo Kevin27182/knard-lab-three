@@ -12,7 +12,7 @@ public class BaseTester {
 
         // Try to create a new data frame from `wine.csv`
         try {
-            myFrame = new DataFrame("data/wine.csv", true);
+            myFrame = DataFrame.readCSV("data/wine.csv", true);
         }
         catch (IOException e) {
             System.out.println("[ERROR] File not found: " + e.getMessage());
