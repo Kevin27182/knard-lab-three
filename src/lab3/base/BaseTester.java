@@ -13,7 +13,7 @@ public class BaseTester {
             // System.out.println(dataView);
             System.out.println(myFrame.getColumn("quality"));
             System.out.println(myFrame.getColumnAtIndex(2));
-            System.out.println(myFrame.getRowAtIndex(0));
+            System.out.println(myFrame.getRowAtIndex(99));
         }
         catch (IOException e) {
             System.out.println("[ERROR] File not found: " + e.getMessage());

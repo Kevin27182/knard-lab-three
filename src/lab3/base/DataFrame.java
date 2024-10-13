@@ -122,7 +122,7 @@ public class DataFrame {
     public ArrayList<String> getColumnAtIndex(int columnIndex) {
 
         // If the column index is out of range, return an empty ArrayList
-        if (columnIndex < 0 || columnIndex >= data.getFirst().size())
+        if (columnIndex < 0 || columnIndex >= getNumberOfColumns())
             return new ArrayList<>();
 
         // Extract a List of the elements corresponding to `column`
@@ -136,7 +136,7 @@ public class DataFrame {
     public ArrayList<String> getRowAtIndex(int rowIndex) {
 
         // If the row index is out of range, return an empty ArrayList
-        if (rowIndex < 0 || rowIndex >= data.size())
+        if (rowIndex < 0 || rowIndex >= getNumberOfRows())
             return new ArrayList<>();
 
         // Extract a List of the elements at `rowIndex`
@@ -144,5 +144,15 @@ public class DataFrame {
 
         // Cast to ArrayList<> and return
         return new ArrayList<>(rowList);
+    }
+
+    // Return the number of rows
+    public int getNumberOfRows() {
+        return data.size();
+    }
+
+    // Return the number of columns
+    public int getNumberOfColumns() {
+        return data.getFirst().size();
     }
 }
