@@ -131,4 +131,18 @@ public class DataFrame {
         // Cast to ArrayList<> and return
         return new ArrayList<>(columnList);
     }
+
+    // Return an ArrayList representation of a row, access by index
+    public ArrayList<String> getRowAtIndex(int rowIndex) {
+
+        // If the row index is out of range, return an empty ArrayList
+        if (rowIndex < 0 || rowIndex >= data.size())
+            return new ArrayList<>();
+
+        // Extract a List of the elements at `rowIndex`
+        var rowList = data.get(rowIndex);
+
+        // Cast to ArrayList<> and return
+        return new ArrayList<>(rowList);
+    }
 }
