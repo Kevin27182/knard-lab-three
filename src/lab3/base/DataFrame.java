@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -20,6 +21,11 @@ public class DataFrame {
     private final String CSV_REGEX = "[,\n]";
     private final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
 
+    // Construct an empty data frame
+    public DataFrame() {
+        header = new ArrayList<>();
+        data = new ArrayList<>();
+    }
 
     // Construct a new data frame from data and header parameters
     private DataFrame(ArrayList<ArrayList<String>> data, ArrayList<String> header) {
@@ -190,16 +196,22 @@ public class DataFrame {
         return data.getFirst().size();
     }
 
-    // Return a new DataFrame sorted by `column`, access by name
-    public DataFrame sortByColumn(String column, boolean ascending) {
+    // Return index of `column` or throw RuntimeException if column does not exist
+    public int getColumnIndex(String column) {
+
+        int columnIndex = header.indexOf(column);
 
         // If header does not exist, throw an exception
         if (header == null)
             throw new RuntimeException("[ERROR] Header not present: cannot access by column name.");
 
-        // Get index of column
-        int columnIndex = header.indexOf(column);
+        return columnIndex;
+    }
 
+    // Return a new DataFrame sorted by `column`, access by name
+    public DataFrame sortByColumn(String column, boolean ascending) {
+
+        int columnIndex = getColumnIndex(column);
         return sortByColumnIndex(columnIndex, ascending);
     }
 
@@ -256,4 +268,25 @@ public class DataFrame {
     public DataFrame sortByColumnIndex(int columnIndex) {
         return sortByColumnIndex(columnIndex, true);
     }
+
+    // Return a DataFrame filtered by condition, access by name
+    public DataFrame filter(Predicate<String> condition, String column) {
+
+        int columnIndex = getColumnIndex(column);
+        return filter(condition, columnIndex);
+    }
+
+    // Return a DataFrame filtered by condition, access by index
+    public DataFrame filter(Predicate<String> condition, int columnIndex) {
+
+        var newHeader = new ArrayList<>(header);
+
+        // Filter data and cast to ArrayList
+        var newDataStream = data.stream().filter(e -> condition.test(e.get(columnIndex)));
+        var newData = new ArrayList<>(newDataStream.toList());
+
+        return new DataFrame(newData, newHeader);
+    }
+
+
 }

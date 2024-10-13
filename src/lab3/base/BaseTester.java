@@ -55,6 +55,14 @@ public class BaseTester {
         System.out.println("Glimpse of wine data sorted by alcohol, descending: \n" + reverseSortedFrame.glimpse() + "\n");
 
         // Show that original DataFrame is unchanged
-        System.out.println("\nOriginal frame is unchanged: \n" + myFrame.glimpse() + "\n");
+        System.out.println("Original frame is unchanged: \n" + myFrame.glimpse() + "\n");
+
+        // Print a glimpse of the data frame filtered by quality == 4
+        DataFrame filteredFrame = myFrame.filter(e -> Double.parseDouble(e) == 4, "quality");
+        System.out.println("Glimpse of wine data filtered by quality == 4: \n" + filteredFrame.glimpse() + "\n");
+
+        // Print a glimpse of the data frame filtered by alcohol >= 10
+        DataFrame filteredFrame1 = myFrame.filter(e -> Double.parseDouble(e) >= 10, "alcohol");
+        System.out.println("Glimpse of wine data filtered by alcohol >= 10: \n" + filteredFrame1.glimpse() + "\n");
     }
 }
