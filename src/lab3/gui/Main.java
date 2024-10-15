@@ -5,11 +5,27 @@
 
 package lab3.gui;
 
+import lab3.base.DataFrame;
+
 import java.awt.*;
+import java.io.IOException;
+
+import static java.lang.System.exit;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        DataFrame data = null;
+
+        // Try to create a new data frame from `wine.csv`
+        try {
+            data = DataFrame.readCSV("data/wine.csv", true);
+        }
+        catch (IOException e) {
+            System.out.println("[ERROR] File not found: " + e.getMessage());
+            exit(1);
+        }
 
         // Main container for UI elements
         Window window = new Window(Theme.WINDOW_TITLE);
@@ -43,7 +59,7 @@ public class Main {
         // Configure constraints and add table panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weighty = 2;
-        canvas.add(new TablePanel(), constraints);
+        canvas.add(new TablePanel(data), constraints);
 
         // Add details panel
         canvas.add(new DetailsPanel(), constraints);

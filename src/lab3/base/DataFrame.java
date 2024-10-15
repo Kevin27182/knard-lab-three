@@ -54,12 +54,12 @@ public class DataFrame {
     }
 
     // Return the header
-    private ArrayList<String> getHeader() {
+    public ArrayList<String> getHeader() {
         return header;
     }
 
     // Return the data
-    private ArrayList<ArrayList<String>> getData() {
+    public ArrayList<ArrayList<String>> getData() {
         return data;
     }
 

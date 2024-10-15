@@ -16,7 +16,7 @@ class Theme {
     public static final Color DARK_BACKGROUND_1 = new Color(0x2f3542);
     public static final Color DARK_BACKGROUND_2 = new Color(0x57606f);
     public static final Color DARK_BACKGROUND_3 = new Color(0x747d8c);
-    public static final Color DARK_BACKGROUND_4 = new Color(0x747d8c);
+    public static final Color DARK_BACKGROUND_4 = new Color(0x97A2A5);
     public static final Color TEXT = new Color(0x191D23);
     public static final Color SUBTEXT = new Color(0x2F3039);
     public static final Color PINK = new Color(0xFF7F92);
