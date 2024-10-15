@@ -27,31 +27,26 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
         constraints.weighty = 1;
-        ControlPanel controlPanel = new ControlPanel();
-        canvas.add(controlPanel, constraints);
+        canvas.add(new ControlPanel(), constraints);
 
         // Configure constraints and add chart panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weightx = 2;
         constraints.weighty = 3;
-        ChartPanel chartPanel = new ChartPanel();
-        canvas.add(chartPanel, constraints);
+        canvas.add(new ChartPanel(), constraints);
 
         // Configure constraints and add stats panel
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
-        StatsPanel statsPanel = new StatsPanel();
-        canvas.add(statsPanel, constraints);
+        canvas.add(new StatsPanel(), constraints);
 
         // Configure constraints and add table panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weighty = 2;
-        TablePanel tablePanel = new TablePanel();
-        canvas.add(tablePanel, constraints);
+        canvas.add(new TablePanel(), constraints);
 
         // Add details panel
-        DetailsPanel detailsPanel = new DetailsPanel();
-        canvas.add(detailsPanel, constraints);
+        canvas.add(new DetailsPanel(), constraints);
 
         // Synchronize UI configuration
         window.revalidateEverything();
