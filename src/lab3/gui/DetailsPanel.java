@@ -5,7 +5,6 @@
 
 package lab3.gui;
 
-import lab3.base.DataFrame;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -40,9 +39,13 @@ public class DetailsPanel extends JPanel {
 
         // Add details as JLabels
         for (String detail : details) {
+            int minWidth = 0;
+            int minHeight = 0;
+            int prefWidth = 100;
+            int prefHeight = 15;
             JLabel detailLabel = new JLabel(detail);
-            detailLabel.setMinimumSize(new Dimension(0, 0));
-            detailLabel.setPreferredSize(new Dimension(100, 15));
+            detailLabel.setMinimumSize(new Dimension(minWidth, minHeight));
+            detailLabel.setPreferredSize(new Dimension(prefWidth, prefHeight));
             gridPanel.add(detailLabel);
         }
 
