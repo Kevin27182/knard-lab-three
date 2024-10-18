@@ -9,8 +9,6 @@ import lab3.base.DataFrame;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.function.Consumer;
 import static java.lang.System.exit;
 
 public class Main {
@@ -62,7 +60,7 @@ public class Main {
         // Configure constraints and add table panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weighty = 2;
-        TablePanel tablePanel = new TablePanel(data, dataDisplay);
+        TablePanel tablePanel = new TablePanel(dataDisplay);
         canvas.add(tablePanel, constraints);
 
         // Add details panel
@@ -70,12 +68,7 @@ public class Main {
         canvas.add(detailsPanel, constraints);
 
         // Consumer for sending cell info to details panel
-        Consumer<ArrayList<String>> detailsConsumer = e -> {
-            detailsPanel.displayDetails(e);
-            System.out.println("Do something in DetailsPanel");
-            System.out.println(e);
-        };
-        tablePanel.setExportConsumer(detailsConsumer);
+        tablePanel.setExportConsumer(detailsPanel::displayDetails);
 
         // Synchronize UI configuration
         window.revalidateEverything();

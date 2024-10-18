@@ -10,16 +10,18 @@ import static lab3.base.Validation.isNumeric;
 
 public class Table extends JScrollPane {
 
-    private DataFrame data;
-    private Consumer<ArrayList<String>> exportConsumer;
+    private DataFrame dataDisplay;
+    private final Consumer<ArrayList<String>> exportConsumer;
     private ArrayList<Cell> headerCells;
     private ArrayList<ArrayList<Cell>> dataCells;
     private static final int SCROLL_SPEED = 10;
+    private int sortColumnIndex;
+    private boolean sortedAscending = false;
 
     // Construct a new table from DataFrame input
-    public Table(DataFrame data, Consumer<ArrayList<String>> exportConsumer) {
+    public Table(DataFrame dataDisplay, Consumer<ArrayList<String>> exportConsumer) {
 
-        this.data = data;
+        this.dataDisplay = dataDisplay;
         this.exportConsumer = exportConsumer;
         getVerticalScrollBar().setUnitIncrement(SCROLL_SPEED);
         render();
@@ -72,12 +74,12 @@ public class Table extends JScrollPane {
         }
 
         // Create header and cell sourceData from DataFrame
-        createHeader(data);
-        createData(data);
+        createHeader(dataDisplay);
+        createData(dataDisplay);
 
         // Define the dimensions of the grid
-        int numRows = 1 + data.getNumberOfRows();
-        int numCols = data.getNumberOfColumns();
+        int numRows = 1 + dataDisplay.getNumberOfRows();
+        int numCols = dataDisplay.getNumberOfColumns();
 
         // Create a RenderPanel, add the sourceData, then set to viewport view
         RenderPanel renderPanel = new RenderPanel(numRows, numCols);
@@ -93,8 +95,8 @@ public class Table extends JScrollPane {
     // Get cell information
     private void getCellInfo(Cell cell) {
 
-        // Create new 2D ArrayList with header and data
-        var concat = new ArrayList<ArrayList<Cell>>(dataCells);
+        // Create new 2D ArrayList with header and dataDisplay
+        var concat = new ArrayList<>(dataCells);
         concat.addFirst(headerCells);
 
         // Find the row containing `cell` and get indexes
@@ -111,17 +113,39 @@ public class Table extends JScrollPane {
         // Stores cell information
         ArrayList<String> cellInfo = new ArrayList<>();
 
-        // Fill cell information
+        // Process dataDisplay cells
         if (cellRowIndex > 0) {
             cellInfo.add("Value: " + cell.getValue());
             cellInfo.add("Variable: " + columnName);
             cellInfo.add("Type: ".concat(cellNumeric ? "Numeric" : "String"));
             cellInfo.add("Index: (" + cellRowIndex + ", " + cellColumnIndex + ")");
             exportConsumer.accept(cellInfo);
-        } else {
+        }
+
+        // Process header cells
+        else {
+            sortTable(cellColumnIndex);
             cellInfo.add("Column: " + columnName);
-            cellInfo.add("Size: " + data.getColumnAtIndex(cellColumnIndex).size());
+            cellInfo.add("Size: " + dataDisplay.getColumnAtIndex(cellColumnIndex).size());
+            cellInfo.add("Sorted: ".concat(sortedAscending ? "Ascending" : "Descending"));
             exportConsumer.accept(cellInfo);
         }
+
+        render();
+    }
+
+    private void sortTable(int cellColumnIndex) {
+
+        // Set fields for new sort column
+        if (cellColumnIndex != sortColumnIndex) {
+            sortedAscending = true;
+            sortColumnIndex = cellColumnIndex;
+        }
+
+        // Toggle sort order for existing sort column
+        else sortedAscending = !sortedAscending;
+
+        // Sort the dataDisplay
+        dataDisplay = dataDisplay.sortByColumnIndex(cellColumnIndex, sortedAscending);
     }
 }

@@ -14,16 +14,14 @@ import java.util.function.Consumer;
 
 public class TablePanel extends JPanel {
 
-
-    private Table table;
-    private DataFrame data;
+    private final DataFrame dataDisplay;
     private Consumer<ArrayList<String>> exportConsumer;
 
     // Construct a new TablePanel from data
-    public TablePanel(DataFrame data, DataFrame dataDisplay) {
+    public TablePanel(DataFrame dataDisplay) {
 
         // Set data
-        this.data = data;
+        this.dataDisplay = dataDisplay;
 
         // Set background to transparent
         setOpaque(false);
@@ -53,7 +51,7 @@ public class TablePanel extends JPanel {
         removeAll();
 
         // Add Table component from data and exportConsumer
-        table = new Table(data, exportConsumer);
+        Table table = new Table(dataDisplay, exportConsumer);
         add(table);
     }
 }
