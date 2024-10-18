@@ -4,45 +4,44 @@ import lab3.base.DataFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+
+import static lab3.base.Validation.isNumeric;
 
 public class Table extends JScrollPane {
 
-    private final DataFrame sourceData;
+    private DataFrame data;
+    private Consumer<ArrayList<String>> exportConsumer;
     private ArrayList<Cell> headerCells;
     private ArrayList<ArrayList<Cell>> dataCells;
     private static final int SCROLL_SPEED = 10;
 
-    // Construct a new empty table
-    public Table() {
-        sourceData = new DataFrame();
-    }
-
     // Construct a new table from DataFrame input
-    public Table(DataFrame data) {
+    public Table(DataFrame data, Consumer<ArrayList<String>> exportConsumer) {
 
+        this.data = data;
+        this.exportConsumer = exportConsumer;
         getVerticalScrollBar().setUnitIncrement(SCROLL_SPEED);
-
-        this.sourceData = data;
-        render(new DataFrame(this.sourceData));
+        render();
     }
 
     // Create headerCells from sourceData header
-    private void createHeader(DataFrame newData) {
+    private void createHeader(DataFrame data) {
 
         // Extract header from sourceData and convert to list of cells
-        var headerExtract = newData.getHeader();
+        var headerExtract = data.getHeader();
         var headerList = headerExtract.stream()
-                .map(e -> new Cell(e, Theme.DARK_BACKGROUND_3, Theme.LIGHT_BACKGROUND_4))
+                .map(value -> new Cell(value, Theme.DARK_BACKGROUND_3, Theme.LIGHT_BACKGROUND_4, this::getCellInfo))
                 .toList();
 
         headerCells = new ArrayList<>(headerList);
     }
 
     // Create dataCells from sourceData
-    private void createData(DataFrame newData) {
+    private void createData(DataFrame data) {
 
         // Extract sourceData and convert to 2D list of cells
-        var dataExtract = newData.getData();
+        var dataExtract = data.getData();
         var dataList = dataExtract.stream()
 
                 /* -------------------------------------------------------------------+
@@ -52,7 +51,7 @@ public class Table extends JScrollPane {
                 |  the second map is for the inner ArrayLists containing String sourceData  |
                 +--------------------------------------------------------------------*/
                 .map(e -> new ArrayList<>(e.stream()
-                        .map(val -> new Cell(val, Theme.LIGHT_BACKGROUND_1, Theme.TEXT))
+                        .map(value -> new Cell(value, Theme.LIGHT_BACKGROUND_1, Theme.TEXT, this::getCellInfo))
                         .toList()))
                 .toList();
 
@@ -60,7 +59,7 @@ public class Table extends JScrollPane {
     }
 
     // Render the table
-    private void render(DataFrame newData) {
+    private void render() {
 
         // Inner class that holds a grid -- serves as the JScrollPane view
         class RenderPanel extends JPanel {
@@ -73,12 +72,12 @@ public class Table extends JScrollPane {
         }
 
         // Create header and cell sourceData from DataFrame
-        createHeader(newData);
-        createData(newData);
+        createHeader(data);
+        createData(data);
 
         // Define the dimensions of the grid
-        int numRows = 1 + newData.getNumberOfRows();
-        int numCols = newData.getNumberOfColumns();
+        int numRows = 1 + data.getNumberOfRows();
+        int numCols = data.getNumberOfColumns();
 
         // Create a RenderPanel, add the sourceData, then set to viewport view
         RenderPanel renderPanel = new RenderPanel(numRows, numCols);
@@ -89,5 +88,40 @@ public class Table extends JScrollPane {
         // Redraw the table
         revalidate();
         repaint();
+    }
+
+    // Get cell information
+    private void getCellInfo(Cell cell) {
+
+        // Create new 2D ArrayList with header and data
+        var concat = new ArrayList<ArrayList<Cell>>(dataCells);
+        concat.addFirst(headerCells);
+
+        // Find the row containing `cell` and get indexes
+        var cellRow = concat.parallelStream().filter(row -> row.contains(cell)).toList().getFirst();
+        int cellRowIndex = concat.indexOf(cellRow);
+        int cellColumnIndex = cellRow.indexOf(cell);
+
+        // Get the name of the column containing `cell`
+        String columnName = headerCells.get(cellColumnIndex).getValue();
+
+        // Test whether `cell` is numeric or a string
+        boolean cellNumeric = isNumeric(cell.getValue());
+
+        // Stores cell information
+        ArrayList<String> cellInfo = new ArrayList<>();
+
+        // Fill cell information
+        if (cellRowIndex > 0) {
+            cellInfo.add("Value: " + cell.getValue());
+            cellInfo.add("Variable: " + columnName);
+            cellInfo.add("Type: ".concat(cellNumeric ? "Numeric" : "String"));
+            cellInfo.add("Index: (" + cellRowIndex + ", " + cellColumnIndex + ")");
+            exportConsumer.accept(cellInfo);
+        } else {
+            cellInfo.add("Column: " + columnName);
+            cellInfo.add("Size: " + data.getColumnAtIndex(cellColumnIndex).size());
+            exportConsumer.accept(cellInfo);
+        }
     }
 }

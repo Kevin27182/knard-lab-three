@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import static lab3.base.Validation.isNumeric;
 
 public class DataFrame {
 
     private final ArrayList<String> header;
     private final ArrayList<ArrayList<String>> data;
     private static final String CSV_REGEX = "[,\n]";
-    private static final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
 
     // Construct an empty data frame
     public DataFrame() {
@@ -259,11 +259,6 @@ public class DataFrame {
             newData = new ArrayList<>(newData.reversed());
 
         return new DataFrame(newData, newHeader);
-    }
-
-    // Check if string is numeric
-    private boolean isNumeric(String string) {
-        return Pattern.matches(NUMERIC_REGEX, string);
     }
 
     // Override: ascending = true by default
