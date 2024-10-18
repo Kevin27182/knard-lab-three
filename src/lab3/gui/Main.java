@@ -68,7 +68,18 @@ public class Main {
         canvas.add(detailsPanel, constraints);
 
         // Consumer for sending cell info to details panel
-        tablePanel.setExportConsumer(detailsPanel::displayDetails);
+        tablePanel.setExportConsumer(export -> {
+
+            // Send exported cell info to the details panel
+            detailsPanel.displayDetails(export);
+
+            // Extract a string representation of the selected column
+            var something = export.stream().filter(item -> item.contains("Column: ")).findFirst();
+            var stringRep = something.orElse("").replace("Column: ", "");
+
+            // Render a histogram of selected column
+            if (something.isPresent()) { /* Render histogram */ }
+        });
 
         // Synchronize UI configuration
         window.revalidateEverything();
