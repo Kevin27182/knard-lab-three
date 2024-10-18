@@ -6,7 +6,6 @@
 package lab3.gui;
 
 import lab3.base.DataFrame;
-
 import java.awt.*;
 import java.io.IOException;
 import static java.lang.System.exit;
@@ -50,7 +49,8 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weightx = 2;
         constraints.weighty = 3;
-        canvas.add(new ChartPanel(data, dataDisplay), constraints);
+        ChartPanel chartPanel = new ChartPanel(dataDisplay);
+        canvas.add(chartPanel, constraints);
 
         // Configure constraints and add stats panel
         constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -67,7 +67,7 @@ public class Main {
         DetailsPanel detailsPanel = new DetailsPanel();
         canvas.add(detailsPanel, constraints);
 
-        // Consumer for sending cell info to details panel
+        // Consumer for exporting info from table panel
         tablePanel.setExportConsumer(export -> {
 
             // Send exported cell info to the details panel
@@ -78,7 +78,9 @@ public class Main {
             var stringRep = something.orElse("").replace("Column: ", "");
 
             // Render a histogram of selected column
-            if (something.isPresent()) { /* Render histogram */ }
+            if (something.isPresent()) {
+                chartPanel.updateHistogram(stringRep, 20);
+            }
         });
 
         // Synchronize UI configuration
