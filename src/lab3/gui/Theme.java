@@ -34,8 +34,8 @@ class Theme {
     public static final Color PURPLE = new Color(0x7B2FE8);
     public static final Color MAGENTA = new Color(0x9D5BB6);
     public static final String WINDOW_TITLE = "Wine Data Analysis";
-    public static final int WINDOW_WIDTH = 800;
-    public static final int WINDOW_HEIGHT = 600;
+    public static final int WINDOW_WIDTH = 1200;
+    public static final int WINDOW_HEIGHT = 800;
     public static final int DEFAULT_PADDING = 10;
     public static final Insets DEFAULT_INSETS = new Insets(DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING, DEFAULT_PADDING);
 }

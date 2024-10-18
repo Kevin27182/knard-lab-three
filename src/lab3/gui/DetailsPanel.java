@@ -14,7 +14,7 @@ public class DetailsPanel extends JPanel {
 
     private final GridPanel gridPanel = new GridPanel();
 
-    public DetailsPanel() {
+    public DetailsPanel(String title, Color color) {
 
         // Add padding around child components
         var border = new EmptyBorder(Theme.DEFAULT_INSETS);
@@ -27,8 +27,7 @@ public class DetailsPanel extends JPanel {
         setLayout(new BorderLayout());
 
         // Add title and GridPanel
-        TitlePanel title = new TitlePanel("Details");
-        add(title, BorderLayout.NORTH);
+        add(new TitlePanel(title, color), BorderLayout.NORTH);
         add(gridPanel, BorderLayout.CENTER);
     }
 
@@ -54,10 +53,10 @@ public class DetailsPanel extends JPanel {
     }
 
     private static class TitlePanel extends JPanel {
-        TitlePanel(String text) {
+        TitlePanel(String text, Color color) {
             JLabel titleLabel = new JLabel(text);
             add(titleLabel);
-            setBackground(Theme.BLUE_3);
+            setBackground(color);
         }
     }
 

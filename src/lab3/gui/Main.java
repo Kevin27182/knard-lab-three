@@ -55,7 +55,8 @@ public class Main {
         // Configure constraints and add stats panel
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
-        canvas.add(new StatsPanel(data, dataDisplay), constraints);
+        StatsPanel statsPanel = new StatsPanel(dataDisplay, "Statistics", Theme.LIME);
+        canvas.add(statsPanel, constraints);
 
         // Configure constraints and add table panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
@@ -64,7 +65,7 @@ public class Main {
         canvas.add(tablePanel, constraints);
 
         // Add details panel
-        DetailsPanel detailsPanel = new DetailsPanel();
+        DetailsPanel detailsPanel = new DetailsPanel("Details", Theme.BLUE_3);
         canvas.add(detailsPanel, constraints);
 
         // Consumer for exporting info from table panel
@@ -74,13 +75,15 @@ public class Main {
             detailsPanel.displayDetails(export);
 
             // Extract a string representation of the selected column
-            var something = export.stream().filter(item -> item.contains("Column: ")).findFirst();
-            var stringRep = something.orElse("").replace("Column: ", "");
+            var column = export.stream().filter(item -> item.contains("Column: ")).findFirst();
+            var stringRep = column.orElse("").replace("Column: ", "");
 
             // Render a histogram of selected column
-            if (something.isPresent()) {
+            if (column.isPresent()) {
                 chartPanel.updateHistogram(stringRep, 20);
+                statsPanel.displayDetails(stringRep);
             }
+
         });
 
         // Synchronize UI configuration

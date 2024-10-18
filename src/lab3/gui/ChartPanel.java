@@ -33,15 +33,19 @@ public class ChartPanel extends JPanel {
         // Set Layout
         setLayout(new BorderLayout());
 
-        // Create and add histogram
-        JLabel initLabel = new JLabel("Click a column in the table to view its distribution.");
-        JPanel initPanel = new JPanel();
-        initLabel.setMinimumSize(new Dimension(0,0));
-        initLabel.setPreferredSize(new Dimension(300,20));
-        initPanel.add(initLabel);
-        add(initPanel, BorderLayout.CENTER);
+        // Create and add default init message
+        add(new InitPanel("Click a column in the table to view its distribution."), BorderLayout.CENTER);
     }
 
+    private static class InitPanel extends JPanel {
+        InitPanel(String msg) {
+            JLabel initLabel = new JLabel(msg);
+            initLabel.setMinimumSize(new Dimension(0,0));
+            initLabel.setPreferredSize(new Dimension(300,20));
+            add(initLabel);
+            setBackground(Theme.LIGHT_BACKGROUND_1);
+        }
+    }
 
     // Wrapper class for JFreeChart's ChartPanel
     private static class Histogram extends org.jfree.chart.ChartPanel {
@@ -66,7 +70,6 @@ public class ChartPanel extends JPanel {
         // Create and configure the histogram
         var hist = ChartFactory.createHistogram(title, title, "Frequency", dataset, PlotOrientation.VERTICAL, true, true, false);
         hist.removeLegend();
-        hist.setBorderVisible(true);
 
         return hist;
     }
