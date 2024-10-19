@@ -42,8 +42,9 @@ public class Main {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
-        constraints.weighty = 1;
-        canvas.add(new ControlPanel(data, dataDisplay), constraints);
+        constraints.weighty = 0.1;
+        ControlPanel controlPanel = new ControlPanel(data, dataDisplay);
+        canvas.add(controlPanel, constraints);
 
         // Configure constraints and add chart panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
