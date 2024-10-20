@@ -26,8 +26,11 @@ public class DetailsPanel extends JPanel {
         // Set layout
         setLayout(new BorderLayout());
 
-        // Add title and GridPanel
+        // Add title
         add(new TitlePanel(title, color), BorderLayout.NORTH);
+
+        // Add grid panel
+        gridPanel.setPreferredSize(new Dimension(0, 0));
         add(gridPanel, BorderLayout.CENTER);
     }
 

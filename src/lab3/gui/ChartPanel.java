@@ -40,6 +40,7 @@ public class ChartPanel extends JPanel {
             JLabel initLabel = new JLabel(msg);
             initLabel.setMinimumSize(new Dimension(0,0));
             initLabel.setPreferredSize(new Dimension(300,20));
+            setPreferredSize(new Dimension(0,0));
             add(initLabel);
             setBackground(Theme.LIGHT_BACKGROUND_1);
         }
@@ -91,6 +92,7 @@ public class ChartPanel extends JPanel {
         // Create and add histogram
         if (!list.isEmpty()) {
             Histogram hist = new Histogram(createChart(list, numBins, column));
+            hist.setPreferredSize(new Dimension(10000,10000));
             add(hist);
         }
 
