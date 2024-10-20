@@ -143,8 +143,15 @@ public class Table extends JScrollPane {
 
         // Process header cells
         else {
+
+            // Toggle sort direction if the same column has been selected
             if (!skipSorting)
                 sortedAscending = !sortedAscending;
+
+            // Default to ascending sort if a new column is selected
+            if (!skipSorting && cellColumnIndex != sortColumnIndex)
+                sortedAscending = true;
+
             dataDisplay = sortTable(cellColumnIndex, dataDisplay, sortedAscending);
             cellInfo.add("Column: " + columnName);
             cellInfo.add("Size: " + dataDisplay.getColumnAtIndex(cellColumnIndex).size());
