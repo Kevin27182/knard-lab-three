@@ -12,10 +12,10 @@ import static java.lang.System.exit;
 
 public class Main {
 
-    public static void main(String[] args) {
+    private static DataFrame data = null;
+    private static DataFrame dataDisplay = null;
 
-        DataFrame data = null;
-        DataFrame dataDisplay = null;
+    public static void main(String[] args) {
 
         // Try to create a new data frame from `wine.csv`
         try {
@@ -43,7 +43,7 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
         constraints.weighty = 0.1;
-        ControlPanel controlPanel = new ControlPanel(data, dataDisplay);
+        ControlPanel controlPanel = new ControlPanel(data);
         canvas.add(controlPanel, constraints);
 
         // Configure constraints and add chart panel
@@ -85,7 +85,13 @@ public class Main {
                 statsPanel.displayDetails(stringRep);
             }
 
-        });
+        }, dataDisplay);
+
+        // Runnable for updating the UI after filtering
+        controlPanel.setUpdateUI(() -> tablePanel.resetTable(dataDisplay));
+
+        // Consumer for updating `dataDisplay`
+        controlPanel.setUpdateDataDisplay(df -> dataDisplay = df);
 
         // Synchronize UI configuration
         window.revalidateEverything();

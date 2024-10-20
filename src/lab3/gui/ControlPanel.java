@@ -6,19 +6,32 @@
 package lab3.gui;
 
 import lab3.base.DataFrame;
+import lab3.base.Validation;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class ControlPanel extends JPanel {
 
-    public ControlPanel(DataFrame data, DataFrame dataDisplay) {
+    private final JTextField left = new JTextField();
+    private final JTextField right = new JTextField();
+    private final JComboBox<String> leftBox = new JComboBox<>();
+    private final JComboBox<String> rightBox = new JComboBox<>();
+    private final JComboBox<String> fieldsBox = new JComboBox<>();
+    private final DataFrame data;
+    private Runnable updateUI = () -> {};
+    private Consumer<DataFrame> updateDataDisplay;
+
+    public ControlPanel(DataFrame data) {
+
+        this.data = data;
 
         setBackground(Theme.LIGHT_BACKGROUND_1);
 
@@ -28,10 +41,6 @@ public class ControlPanel extends JPanel {
             add("<");
             add("<=");
         }};
-
-        // Text fields for entering numeric filter
-        JTextField left = new JTextField();
-        JTextField right = new JTextField();
 
         // Deactivate both text fields
         activateTextField(left, false);
@@ -45,10 +54,6 @@ public class ControlPanel extends JPanel {
         left.addKeyListener(new TextFieldAction());
         right.addKeyListener(new TextFieldAction());
 
-        // Drop down boxes for selecting comparison operators
-        JComboBox<String> leftBox = new JComboBox<>();
-        JComboBox<String> rightBox = new JComboBox<>();
-
         // Add operators to drop down boxes
         operators.forEach(leftBox::addItem);
         operators.forEach(rightBox::addItem);
@@ -58,7 +63,6 @@ public class ControlPanel extends JPanel {
         rightBox.addActionListener(new OperatorAction(right));
 
         // Add fields from data
-        JComboBox<String> fieldsBox = new JComboBox<>();
         data.getHeader().forEach(fieldsBox::addItem);
 
         // Add components
@@ -92,31 +96,17 @@ public class ControlPanel extends JPanel {
 
             // Activate text field based on selected item
             activateTextField(field, !item.isBlank());
+            update();
         }
     }
 
     // Reusable action listener for operator drop down boxes
-    private static class TextFieldAction implements KeyListener {
+    private class TextFieldAction implements KeyListener {
 
-        private static LocalDateTime Timeout;
-        private static boolean updating = false;
-
+        // Filter the data after the text field is changed
         @Override
         public void keyTyped(KeyEvent e) {
-
-            // Reset the timeout
-            Timeout = LocalDateTime.now();
-
-            // Do nothing if already updating
-            if (updating) {
-                return;
-            }
-
-            updating = true;
-
-            // Defer timeout-based updating to new thread
-            Thread thread = new Thread(this::deferUpdate);
-            thread.start();
+            update();
         }
 
         @Override
@@ -128,27 +118,115 @@ public class ControlPanel extends JPanel {
         public void keyReleased(KeyEvent e) {
             // Do nothing
         }
+    }
 
-        // Wait for timeout to expire, then update
-        private void deferUpdate() {
+    // Wrap `updateFilter` in new thread to prevent UI slowdown
+    private void update() {
+        Thread t = new Thread(this::updateFilter);
+        t.start();
+    }
 
-            int duration = 2;
+    // Update the filter
+    private void updateFilter() {
 
-            // Checks if timeout has expired once per second
-            while (Timeout.plusSeconds(duration).isAfter(LocalDateTime.now())) {
+        // Do nothing if `updateDataDisplay` callback is not set
+        if (updateDataDisplay == null)
+            return;
 
-                // Sleep for 1 second
-                try { TimeUnit.SECONDS.sleep(1); }
+        // Timeout necessary for thread to access updated information
+        try { TimeUnit.MILLISECONDS.sleep(1); }
+        catch (InterruptedException ex) {throw new RuntimeException(); }
 
-                // If InterruptedException occurs, throw a RuntimeException (should never happen)
-                catch (InterruptedException ex) { throw new RuntimeException(ex); }
-            }
+        // Extract values from user input
+        String leftValue = left.getText();
+        String leftOperator = (String) leftBox.getSelectedItem();
+        String field = (String) fieldsBox.getSelectedItem();
+        String rightOperator = (String) rightBox.getSelectedItem();
+        String rightValue = right.getText();
 
-            updating = false;
+        // Left- and right-hand cast targets
+        double l;
+        double r;
 
-            // Update logic
-            System.out.println("Updating");
+        // Cast to double if numeric
+        if (Validation.isNumeric(leftValue))
+            l = Double.parseDouble(leftValue);
+
+        // Reject filter if non-numeric
+        else {
+            l = 0;
+            leftValue = "";
         }
+
+        // Cast to double if numeric
+        if (Validation.isNumeric(rightValue))
+            r = Double.parseDouble(rightValue);
+
+        // Reject filter if non-numeric
+        else {
+            r = 0;
+            rightValue = "";
+        }
+
+        // Throw an error if any of the drop-down boxes contain a null value
+        assert leftOperator != null;
+        assert field != null;
+        assert rightOperator != null;
+
+        // Checks for emptiness
+        boolean leftEmpty = leftValue.isBlank() || leftOperator.isBlank();
+        boolean rightEmpty = rightValue.isBlank() || rightOperator.isBlank();
+
+        // If you can think of a better way than using an if chain to implement this filter,
+        // please describe it to me in detail in your review
+
+        // No filter
+        if (leftEmpty && rightEmpty) {
+            updateDataDisplay.accept(data);
+        }
+
+        // left < field
+        else if (!leftEmpty && rightEmpty && leftOperator.equals("<")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> l < e, field));
+        }
+
+        // left <= field
+        else if (!leftEmpty && rightEmpty && leftOperator.equals("<=")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> l <= e, field));
+        }
+
+        // field < right
+        else if (leftEmpty && rightOperator.equals("<")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> e < r, field));
+        }
+
+        // field <= right
+        else if (leftEmpty && rightOperator.equals("<=")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> e <= r, field));
+        }
+
+        // left < field < right
+        else if (leftOperator.equals("<") && rightOperator.equals("<")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> l < e && e < r, field));
+        }
+
+        // left <= field < right
+        else if (leftOperator.equals("<=") && rightOperator.equals("<")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> l <= e && e < r, field));
+        }
+
+        // left < field <= right
+        else if (leftOperator.equals("<") && rightOperator.equals("<=")) {
+            updateDataDisplay.accept(data.filterNumeric(e -> l < e && e <= r, field));
+        }
+
+        // left <= field <= right
+        else {
+            updateDataDisplay.accept(data.filterNumeric(e -> l <= e && e <= r, field));
+        }
+
+        // Update the UI with new dataDisplay
+        updateUI.run();
     }
 
     // Activate or deactivate the given text field
@@ -167,5 +245,15 @@ public class ControlPanel extends JPanel {
             field.setFocusable(false);
             field.setCursor(Cursor.getDefaultCursor());
         }
+    }
+
+    // Set the UI update callback
+    public void setUpdateUI(Runnable updateUI) {
+        this.updateUI = updateUI;
+    }
+
+    // Set the display data
+    public void setUpdateDataDisplay(Consumer<DataFrame> updateDataDisplay) {
+        this.updateDataDisplay = updateDataDisplay;
     }
 }

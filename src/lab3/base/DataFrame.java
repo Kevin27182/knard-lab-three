@@ -130,6 +130,9 @@ public class DataFrame {
     // Return a string showing a glimpse of the data in the DataFrame
     public String glimpse() {
 
+        if (data.isEmpty())
+            return header.toString();
+
         String contents = "";
         Stream<ArrayList<String>> startDataStream = data.stream().limit(3);
         Stream<ArrayList<String>> endDataStream = data.stream().skip(data.size() - 3);
@@ -196,11 +199,15 @@ public class DataFrame {
 
     // Return the number of rows
     public int getNumberOfRows() {
+        if (data.isEmpty())
+            return 0;
         return data.size();
     }
 
     // Return the number of columns
     public int getNumberOfColumns() {
+        if (data.isEmpty())
+            return 0;
         return data.getFirst().size();
     }
 

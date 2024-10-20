@@ -24,6 +24,7 @@ public class Table extends JScrollPane {
         this.dataDisplay = dataDisplay;
         this.exportConsumer = exportConsumer;
         getVerticalScrollBar().setUnitIncrement(SCROLL_SPEED);
+        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         render();
     }
 

@@ -14,14 +14,10 @@ import java.util.function.Consumer;
 
 public class TablePanel extends JPanel {
 
-    private final DataFrame dataDisplay;
     private Consumer<ArrayList<String>> exportConsumer;
 
     // Construct a new TablePanel from data
     public TablePanel(DataFrame dataDisplay) {
-
-        // Set data
-        this.dataDisplay = dataDisplay;
 
         // Set background to transparent
         setOpaque(false);
@@ -35,17 +31,17 @@ public class TablePanel extends JPanel {
         setBorder(border);
 
         // Reset the table
-        resetTable();
+        resetTable(dataDisplay);
     }
 
     // Set the update consumer
-    public void setExportConsumer(Consumer<ArrayList<String>> exportConsumer) {
+    public void setExportConsumer(Consumer<ArrayList<String>> exportConsumer, DataFrame dataDisplay) {
         this.exportConsumer = exportConsumer;
-        resetTable();
+        resetTable(dataDisplay);
     }
 
     // Reset table
-    public void resetTable() {
+    public void resetTable(DataFrame dataDisplay) {
 
         // Remove children if any
         removeAll();
@@ -53,5 +49,9 @@ public class TablePanel extends JPanel {
         // Add Table component from data and exportConsumer
         Table table = new Table(dataDisplay, exportConsumer);
         add(table);
+
+        // Re-draw the table
+        revalidate();
+        repaint();
     }
 }
