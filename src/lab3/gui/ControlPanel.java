@@ -17,6 +17,7 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ControlPanel extends JPanel {
 
@@ -25,13 +26,13 @@ public class ControlPanel extends JPanel {
     private final JComboBox<String> leftBox = new JComboBox<>();
     private final JComboBox<String> rightBox = new JComboBox<>();
     private final JComboBox<String> fieldsBox = new JComboBox<>();
-    private final DataFrame data;
-    private Runnable updateUI = () -> {};
+    private Consumer<DataFrame> updateUI;
     private Consumer<DataFrame> updateDataDisplay;
+    private final Supplier<DataFrame> dataSupplier;
 
-    public ControlPanel(DataFrame data) {
+    public ControlPanel(DataFrame data, Supplier<DataFrame> dataSupplier) {
 
-        this.data = data;
+        this.dataSupplier = dataSupplier;
 
         setBackground(Theme.LIGHT_BACKGROUND_1);
 
@@ -122,12 +123,12 @@ public class ControlPanel extends JPanel {
 
     // Wrap `updateFilter` in new thread to prevent UI slowdown
     private void update() {
-        Thread t = new Thread(this::updateFilter);
+        Thread t = new Thread(() -> updateFilter(dataSupplier.get()));
         t.start();
     }
 
     // Update the filter
-    private void updateFilter() {
+    private void updateFilter(DataFrame data) {
 
         // Do nothing if `updateDataDisplay` callback is not set
         if (updateDataDisplay == null)
@@ -180,53 +181,56 @@ public class ControlPanel extends JPanel {
         // If you can think of a better way than using an if chain to implement this filter,
         // please describe it to me in detail in your review
 
+        DataFrame updatedDataDisplay;
+
         // No filter
         if (leftEmpty && rightEmpty) {
-            updateDataDisplay.accept(data);
+            updatedDataDisplay = data;
         }
 
         // left < field
         else if (!leftEmpty && rightEmpty && leftOperator.equals("<")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> l < e, field));
+            updatedDataDisplay = data.filterNumeric(e -> l < e, field);
         }
 
         // left <= field
         else if (!leftEmpty && rightEmpty && leftOperator.equals("<=")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> l <= e, field));
+            updatedDataDisplay = data.filterNumeric(e -> l <= e, field);
         }
 
         // field < right
         else if (leftEmpty && rightOperator.equals("<")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> e < r, field));
+            updatedDataDisplay = data.filterNumeric(e -> e < r, field);
         }
 
         // field <= right
         else if (leftEmpty && rightOperator.equals("<=")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> e <= r, field));
+            updatedDataDisplay = data.filterNumeric(e -> e <= r, field);
         }
 
         // left < field < right
         else if (leftOperator.equals("<") && rightOperator.equals("<")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> l < e && e < r, field));
+            updatedDataDisplay = data.filterNumeric(e -> l < e && e < r, field);
         }
 
         // left <= field < right
         else if (leftOperator.equals("<=") && rightOperator.equals("<")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> l <= e && e < r, field));
+            updatedDataDisplay = data.filterNumeric(e -> l <= e && e < r, field);
         }
 
         // left < field <= right
         else if (leftOperator.equals("<") && rightOperator.equals("<=")) {
-            updateDataDisplay.accept(data.filterNumeric(e -> l < e && e <= r, field));
+            updatedDataDisplay = data.filterNumeric(e -> l < e && e <= r, field);
         }
 
         // left <= field <= right
         else {
-            updateDataDisplay.accept(data.filterNumeric(e -> l <= e && e <= r, field));
+            updatedDataDisplay = data.filterNumeric(e -> l <= e && e <= r, field);
         }
 
-        // Update the UI with new dataDisplay
-        updateUI.run();
+        // Update the data display and UI
+        updateDataDisplay.accept(updatedDataDisplay);
+        updateUI.accept(updatedDataDisplay);
     }
 
     // Activate or deactivate the given text field
@@ -248,7 +252,7 @@ public class ControlPanel extends JPanel {
     }
 
     // Set the UI update callback
-    public void setUpdateUI(Runnable updateUI) {
+    public void setUpdateUI(Consumer<DataFrame> updateUI) {
         this.updateUI = updateUI;
     }
 

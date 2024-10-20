@@ -4,48 +4,60 @@ import lab3.base.DataFrame;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static lab3.base.Validation.isNumeric;
 
 public class Table extends JScrollPane {
 
-    private DataFrame dataDisplay;
     private final Consumer<ArrayList<String>> exportConsumer;
+    private final BiConsumer<Integer, Boolean> sortDataConsumer;
+    private final BiConsumer<Integer, Boolean> sortDataDisplayConsumer;
     private ArrayList<Cell> headerCells;
     private ArrayList<ArrayList<Cell>> dataCells;
     private static final int SCROLL_SPEED = 10;
     private int sortColumnIndex;
-    private boolean sortedAscending = false;
+    private boolean sortedAscending;
     private String selectedColumn;
 
     // Construct a new table from DataFrame input
-    public Table(DataFrame dataDisplay, Consumer<ArrayList<String>> exportConsumer) {
+    public Table(
+            DataFrame dataDisplay,
+            Consumer<ArrayList<String>> exportConsumer,
+            BiConsumer<Integer, Boolean> sortDataConsumer,
+            BiConsumer<Integer, Boolean> sortDataDisplayConsumer,
+            boolean sortedAscending,
+            int sortColumnIndex
+    ) {
 
-        this.dataDisplay = dataDisplay;
         this.exportConsumer = exportConsumer;
+        this.sortDataConsumer = sortDataConsumer;
+        this.sortDataDisplayConsumer = sortDataDisplayConsumer;
+        this.sortColumnIndex = sortColumnIndex;
+        this.sortedAscending = sortedAscending;
         getVerticalScrollBar().setUnitIncrement(SCROLL_SPEED);
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
-        render();
+        render(dataDisplay);
     }
 
     // Create headerCells from sourceData header
-    private void createHeader(DataFrame data) {
+    private void createHeader(DataFrame dataDisplay) {
 
         // Extract header from sourceData and convert to list of cells
-        var headerExtract = data.getHeader();
+        var headerExtract = dataDisplay.getHeader();
         var headerList = headerExtract.stream()
-                .map(value -> new Cell(value, Theme.DARK_BACKGROUND_3, Theme.LIGHT_BACKGROUND_4, this::getCellInfo))
+                .map(value -> new Cell(value, Theme.DARK_BACKGROUND_3, Theme.LIGHT_BACKGROUND_4, cell -> getCellInfo(cell, dataDisplay)))
                 .toList();
 
         headerCells = new ArrayList<>(headerList);
     }
 
     // Create dataCells from sourceData
-    private void createData(DataFrame data) {
+    private void createData(DataFrame dataDisplay) {
 
         // Extract sourceData and convert to 2D list of cells
-        var dataExtract = data.getData();
+        var dataExtract = dataDisplay.getData();
         var dataList = dataExtract.stream()
 
                 /* -------------------------------------------------------------------+
@@ -55,7 +67,7 @@ public class Table extends JScrollPane {
                 |  the second map is for the inner ArrayLists containing String sourceData  |
                 +--------------------------------------------------------------------*/
                 .map(e -> new ArrayList<>(e.stream()
-                        .map(value -> new Cell(value, Theme.LIGHT_BACKGROUND_1, Theme.TEXT, this::getCellInfo))
+                        .map(value -> new Cell(value, Theme.LIGHT_BACKGROUND_1, Theme.TEXT, cell -> getCellInfo(cell, dataDisplay)))
                         .toList()))
                 .toList();
 
@@ -63,7 +75,7 @@ public class Table extends JScrollPane {
     }
 
     // Render the table
-    private void render() {
+    private void render(DataFrame dataDisplay) {
 
         // Inner class that holds a grid -- serves as the JScrollPane view
         class RenderPanel extends JPanel {
@@ -94,8 +106,13 @@ public class Table extends JScrollPane {
         repaint();
     }
 
+    // Get cell information, sorting toggle on by default
+    public void getCellInfo(Cell cell, DataFrame dataDisplay) {
+        this.getCellInfo(cell, dataDisplay, false);
+    }
+
     // Get cell information
-    public void getCellInfo(Cell cell) {
+    public void getCellInfo(Cell cell, DataFrame dataDisplay, boolean skipSorting) {
 
         // Create new 2D ArrayList with header and dataDisplay
         var concat = new ArrayList<>(dataCells);
@@ -126,7 +143,9 @@ public class Table extends JScrollPane {
 
         // Process header cells
         else {
-            sortTable(cellColumnIndex);
+            if (!skipSorting)
+                sortedAscending = !sortedAscending;
+            dataDisplay = sortTable(cellColumnIndex, dataDisplay, sortedAscending);
             cellInfo.add("Column: " + columnName);
             cellInfo.add("Size: " + dataDisplay.getColumnAtIndex(cellColumnIndex).size());
             cellInfo.add("Sorted: ".concat(sortedAscending ? "Ascending" : "Descending"));
@@ -136,7 +155,8 @@ public class Table extends JScrollPane {
         // Set current selection
         selectedColumn = columnName;
 
-        render();
+        // Render the new data display
+        render(dataDisplay);
     }
 
     // Given a column name, return the header cell for that column
@@ -159,8 +179,18 @@ public class Table extends JScrollPane {
         return selectedColumn;
     }
 
+    // Return `sortedAscending`
+    public boolean getSortedAscending() {
+        return sortedAscending;
+    }
+
+    // Return sort index
+    public int getSortColumnIndex() {
+        return sortColumnIndex;
+    }
+
     // Sort the table
-    private void sortTable(int cellColumnIndex) {
+    private DataFrame sortTable(int cellColumnIndex, DataFrame dataDisplay, boolean sortedAscending) {
 
         // Set fields for new sort column
         if (cellColumnIndex != sortColumnIndex) {
@@ -168,11 +198,16 @@ public class Table extends JScrollPane {
             sortColumnIndex = cellColumnIndex;
         }
 
-        // Toggle sort order for existing sort column
-        else sortedAscending = !sortedAscending;
-
         // Sort the dataDisplay
         if (dataDisplay.getNumberOfRows() > 0)
-            dataDisplay = dataDisplay.sortByColumnIndex(cellColumnIndex, sortedAscending);
+            sortDataDisplayConsumer.accept(cellColumnIndex, sortedAscending);
+
+        // Sort parent data
+        sortDataConsumer.accept(cellColumnIndex, sortedAscending);
+
+        if (dataDisplay.getNumberOfRows() > 0)
+            return dataDisplay.sortByColumnIndex(cellColumnIndex, sortedAscending);
+
+        return dataDisplay;
     }
 }

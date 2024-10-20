@@ -43,7 +43,7 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
         constraints.weighty = 0.1;
-        ControlPanel controlPanel = new ControlPanel(data);
+        ControlPanel controlPanel = new ControlPanel(data,() -> data);
         canvas.add(controlPanel, constraints);
 
         // Configure constraints and add chart panel
@@ -69,6 +69,10 @@ public class Main {
         DetailsPanel detailsPanel = new DetailsPanel("Details", Theme.BLUE_3);
         canvas.add(detailsPanel, constraints);
 
+        // BiConsumers for sorting
+        tablePanel.setSortDataConsumer((index, ascending) -> data = data.sortByColumnIndex(index, ascending), dataDisplay);
+        tablePanel.setSortDataDisplayConsumer((index, ascending) -> dataDisplay = dataDisplay.sortByColumnIndex(index, ascending), dataDisplay);
+
         // Consumer for exporting info from table panel
         tablePanel.setExportConsumer(export -> {
 
@@ -88,7 +92,10 @@ public class Main {
         }, dataDisplay);
 
         // Runnable for updating the UI after filtering
-        controlPanel.setUpdateUI(() -> tablePanel.resetTable(dataDisplay));
+        controlPanel.setUpdateUI(df -> {
+            //System.out.println(tablePanel.getSortedAscending());
+            tablePanel.resetTable(df, tablePanel.getSortedAscending());
+        });
 
         // Consumer for updating `dataDisplay`
         controlPanel.setUpdateDataDisplay(df -> dataDisplay = df);
