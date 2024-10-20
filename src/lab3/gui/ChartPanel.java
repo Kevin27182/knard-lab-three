@@ -13,15 +13,13 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ChartPanel extends JPanel {
 
-    private final DataFrame dataDisplay;
+    private final InitPanel startup = new InitPanel("Click a column in the table to view its distribution.");
 
-    public ChartPanel(DataFrame dataDisplay) {
-
-        // Set `dataDisplay`
-        this.dataDisplay = dataDisplay;
+    public ChartPanel() {
 
         // Set background to transparent
         setOpaque(false);
@@ -34,7 +32,7 @@ public class ChartPanel extends JPanel {
         setLayout(new BorderLayout());
 
         // Create and add default init message
-        add(new InitPanel("Click a column in the table to view its distribution."), BorderLayout.CENTER);
+        add(startup, BorderLayout.CENTER);
     }
 
     private static class InitPanel extends JPanel {
@@ -74,7 +72,15 @@ public class ChartPanel extends JPanel {
         return hist;
     }
 
-    public void updateHistogram(String column, int numBins) {
+    public void updateHistogram(DataFrame dataDisplay, String column, int numBins) {
+
+        var comps = Arrays.asList(getComponents());
+        InitPanel msg = new InitPanel("There's no data to display. Try adjusting your filters!");
+
+        if (!comps.isEmpty()) {
+            if (comps.getFirst() == startup)
+                msg = startup;
+        }
 
         // Remove all children if any
         removeAll();
@@ -83,8 +89,14 @@ public class ChartPanel extends JPanel {
         var list = dataDisplay.getColumn(column);
 
         // Create and add histogram
-        Histogram hist = new Histogram(createChart(list, numBins, column));
-        add(hist);
+        if (!list.isEmpty()) {
+            Histogram hist = new Histogram(createChart(list, numBins, column));
+            add(hist);
+        }
+
+        // Show missing data message if previous was a histogram
+        else
+            add(msg);
 
         // Update UI
         revalidate();

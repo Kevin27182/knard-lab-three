@@ -93,4 +93,9 @@ public class TablePanel extends JPanel {
 
         return table.getSortedAscending();
     }
+
+    // Return the selected column
+    public String getSortColumn() {
+        return table.getSelectedColumn();
+    }
 }

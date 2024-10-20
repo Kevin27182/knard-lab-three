@@ -50,7 +50,7 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.RELATIVE;
         constraints.weightx = 2;
         constraints.weighty = 3;
-        ChartPanel chartPanel = new ChartPanel(dataDisplay);
+        ChartPanel chartPanel = new ChartPanel();
         canvas.add(chartPanel, constraints);
 
         // Configure constraints and add stats panel
@@ -85,7 +85,7 @@ public class Main {
 
             // Render a histogram of selected column
             if (column.isPresent()) {
-                chartPanel.updateHistogram(stringRep, 20);
+                chartPanel.updateHistogram(dataDisplay, stringRep, 20);
                 statsPanel.displayDetails(stringRep);
             }
 
@@ -95,6 +95,7 @@ public class Main {
         controlPanel.setUpdateUI(df -> {
             //System.out.println(tablePanel.getSortedAscending());
             tablePanel.resetTable(df, tablePanel.getSortedAscending());
+            chartPanel.updateHistogram(dataDisplay, tablePanel.getSortColumn(), 20);
         });
 
         // Consumer for updating `dataDisplay`
