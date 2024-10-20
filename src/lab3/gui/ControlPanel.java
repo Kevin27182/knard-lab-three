@@ -66,6 +66,9 @@ public class ControlPanel extends JPanel {
         // Add fields from data
         data.getHeader().forEach(fieldsBox::addItem);
 
+        // Add action listener to update when fields box changes
+        fieldsBox.addActionListener(e -> update());
+
         // Add components
         add(left);
         add(leftBox);
