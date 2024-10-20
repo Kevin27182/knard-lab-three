@@ -12,8 +12,8 @@ import static java.lang.System.exit;
 
 public class Main {
 
-    private static DataFrame data = null;
-    private static DataFrame dataDisplay = null;
+    private static DataFrame data;
+    private static DataFrame dataDisplay;
 
     public static void main(String[] args) {
 

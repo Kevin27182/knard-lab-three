@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public class TablePanel extends JPanel {
 
     private Consumer<ArrayList<String>> exportConsumer;
+    private Table table;
 
     // Construct a new TablePanel from data
     public TablePanel(DataFrame dataDisplay) {
@@ -43,12 +44,22 @@ public class TablePanel extends JPanel {
     // Reset table
     public void resetTable(DataFrame dataDisplay) {
 
+        String selectedColumn = null;
+
+        // Get the selected cell if table not null
+        if (table != null)
+            selectedColumn = table.getSelectedColumn();
+
         // Remove children if any
         removeAll();
 
-        // Add Table component from data and exportConsumer
-        Table table = new Table(dataDisplay, exportConsumer);
+        // Add new Table component from data and exportConsumer
+        table = new Table(dataDisplay, exportConsumer);
         add(table);
+
+        // Export the current selected cell info if not null
+        if (selectedColumn != null)
+            table.getCellInfo(table.getColumn(selectedColumn));
 
         // Re-draw the table
         revalidate();

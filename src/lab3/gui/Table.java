@@ -17,6 +17,7 @@ public class Table extends JScrollPane {
     private static final int SCROLL_SPEED = 10;
     private int sortColumnIndex;
     private boolean sortedAscending = false;
+    private String selectedColumn;
 
     // Construct a new table from DataFrame input
     public Table(DataFrame dataDisplay, Consumer<ArrayList<String>> exportConsumer) {
@@ -94,7 +95,7 @@ public class Table extends JScrollPane {
     }
 
     // Get cell information
-    private void getCellInfo(Cell cell) {
+    public void getCellInfo(Cell cell) {
 
         // Create new 2D ArrayList with header and dataDisplay
         var concat = new ArrayList<>(dataCells);
@@ -132,9 +133,33 @@ public class Table extends JScrollPane {
             exportConsumer.accept(cellInfo);
         }
 
+        // Set current selection
+        selectedColumn = columnName;
+
         render();
     }
 
+    // Given a column name, return the header cell for that column
+    public Cell getColumn(String column) {
+
+        return headerCells.stream()
+
+                // Filter stream to cells that contain `column`
+                .filter(contents -> contents.getValue().equals(column))
+
+                // Reduce the stream to an optional
+                .findFirst()
+
+                // Reduce to cell or throw an error if empty
+                .orElse(null);
+    }
+
+    // Return the selected column
+    public String getSelectedColumn() {
+        return selectedColumn;
+    }
+
+    // Sort the table
     private void sortTable(int cellColumnIndex) {
 
         // Set fields for new sort column
