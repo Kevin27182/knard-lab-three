@@ -36,6 +36,9 @@ public class Table extends JScrollPane {
         this.sortDataDisplayConsumer = sortDataDisplayConsumer;
         this.sortColumnIndex = sortColumnIndex;
         this.sortedAscending = sortedAscending;
+
+        setPreferredSize(new Dimension(0, 0));
+
         getVerticalScrollBar().setUnitIncrement(SCROLL_SPEED);
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         render(dataDisplay);
