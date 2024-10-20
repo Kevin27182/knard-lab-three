@@ -11,17 +11,20 @@ import java.util.ArrayList;
 
 public class StatsPanel extends DetailsPanel {
 
-    DataFrame dataDisplay;
 
-    public StatsPanel(DataFrame dataDisplay, String title, Color color) {
+    public StatsPanel(String title, Color color) {
         super(title, color);
-        this.dataDisplay = dataDisplay;
     }
 
-    public void displayDetails(String column) {
+    public void displayDetails(DataFrame dataDisplay, String column) {
 
         // Get column from parameter
         var col = dataDisplay.getColumn(column);
+
+        if (col.isEmpty()) {
+            super.displayDetails(new ArrayList<>());
+            return;
+        }
 
         // Convert `details` to numeric array
         var numericStream = col.stream().map(Double::parseDouble);

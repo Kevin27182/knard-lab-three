@@ -56,7 +56,7 @@ public class Main {
         // Configure constraints and add stats panel
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
-        StatsPanel statsPanel = new StatsPanel(dataDisplay, "Statistics", Theme.LIME);
+        StatsPanel statsPanel = new StatsPanel("Statistics", Theme.LIME);
         canvas.add(statsPanel, constraints);
 
         // Configure constraints and add table panel
@@ -86,15 +86,15 @@ public class Main {
             // Render a histogram of selected column
             if (column.isPresent()) {
                 chartPanel.updateHistogram(dataDisplay, stringRep, 20);
-                statsPanel.displayDetails(stringRep);
+                statsPanel.displayDetails(dataDisplay, stringRep);
             }
 
         }, dataDisplay);
 
         // Runnable for updating the UI after filtering
         controlPanel.setUpdateUI(df -> {
-            //System.out.println(tablePanel.getSortedAscending());
             tablePanel.resetTable(df, tablePanel.getSortedAscending());
+            statsPanel.displayDetails(dataDisplay, tablePanel.getSortColumn());
             chartPanel.updateHistogram(dataDisplay, tablePanel.getSortColumn(), 20);
         });
 
