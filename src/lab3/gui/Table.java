@@ -172,6 +172,7 @@ public class Table extends JScrollPane {
         else sortedAscending = !sortedAscending;
 
         // Sort the dataDisplay
-        dataDisplay = dataDisplay.sortByColumnIndex(cellColumnIndex, sortedAscending);
+        if (dataDisplay.getNumberOfRows() > 0)
+            dataDisplay = dataDisplay.sortByColumnIndex(cellColumnIndex, sortedAscending);
     }
 }
