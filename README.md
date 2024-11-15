@@ -19,8 +19,8 @@ the `TablePanel` class is the publisher and the `StatsPanel`, `DetailsPanel`, an
 defines custom behavior that operates on the data stored within the `ActionEvent`. 
 Each subscriber was added to the `TablePanel` as an `ActionListener`, and whenever the
 table is updated, `TablePanel` sends an update to all subscribers.
-* **Decorator:** The StatsPanel class was converted to a Decorator for DetailsPanel.
-Instead of extending DetailsPanel, StatsPanel now *has* a DetailsPanel field and acts
-as a DetailsPanel wrapper class. The methods in StatsPanel now operate on the 
-DetailsPanel instance variable. This change removed the strict dependency between the 
+* **Decorator:** The `StatsPanel` class was converted to a Decorator for `DetailsPanel`.
+Instead of extending `DetailsPanel`, `StatsPanel` now *has* a `DetailsPanel` field and
+acts as a `DetailsPanel` wrapper class. The methods in `StatsPanel` now operate on the
+`DetailsPanel` instance variable. This change removed the strict dependency between the 
 two classes by converting the relationship from inheritance to an aggregation.
