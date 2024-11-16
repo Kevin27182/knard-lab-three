@@ -57,7 +57,7 @@ public class Main {
         constraints.gridwidth = GridBagConstraints.REMAINDER;
         constraints.weightx = 1;
         StatsPanel statsPanel = new StatsPanel("Statistics", Theme.LIME);
-        canvas.add(statsPanel, constraints);
+        canvas.add(statsPanel.getDetailsPanel(), constraints);
 
         // Configure constraints and add table panel
         constraints.gridwidth = GridBagConstraints.RELATIVE;
@@ -69,27 +69,14 @@ public class Main {
         DetailsPanel detailsPanel = new DetailsPanel("Details", Theme.BLUE_3);
         canvas.add(detailsPanel, constraints);
 
+        // Add TableObservers to tablePanel
+        tablePanel.addTableObserver(detailsPanel);
+        tablePanel.addTableObserver(statsPanel);
+        tablePanel.addTableObserver(chartPanel);
+
         // BiConsumers for sorting
         tablePanel.setSortDataConsumer((index, ascending) -> data = data.sortByColumnIndex(index, ascending), dataDisplay);
         tablePanel.setSortDataDisplayConsumer((index, ascending) -> dataDisplay = dataDisplay.sortByColumnIndex(index, ascending), dataDisplay);
-
-        // Consumer for exporting info from table panel
-        tablePanel.setExportConsumer(export -> {
-
-            // Send exported cell info to the details panel
-            detailsPanel.displayDetails(export);
-
-            // Extract a string representation of the selected column
-            var column = export.stream().filter(item -> item.contains("Column: ")).findFirst();
-            var stringRep = column.orElse("").replace("Column: ", "");
-
-            // Render a histogram of selected column
-            if (column.isPresent()) {
-                chartPanel.updateHistogram(dataDisplay, stringRep, 20);
-                statsPanel.displayDetails(dataDisplay, stringRep);
-            }
-
-        }, dataDisplay);
 
         // Runnable for updating the UI after filtering
         controlPanel.setUpdateUI(df -> {

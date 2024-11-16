@@ -9,11 +9,12 @@ import lab3.base.DataFrame;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class StatsPanel extends DetailsPanel {
+public class StatsPanel implements TableObserver {
 
+    private final DetailsPanel detailsPanel;
 
     public StatsPanel(String title, Color color) {
-        super(title, color);
+        detailsPanel = new DetailsPanel(title, color);
     }
 
     public void displayDetails(DataFrame dataDisplay, String column) {
@@ -22,7 +23,7 @@ public class StatsPanel extends DetailsPanel {
         var col = dataDisplay.getColumn(column);
 
         if (col.isEmpty()) {
-            super.displayDetails(new ArrayList<>());
+            detailsPanel.displayDetails(new ArrayList<>());
             return;
         }
 
@@ -43,7 +44,19 @@ public class StatsPanel extends DetailsPanel {
         numericDetails.add("Range: " + round(range(numericList)));
 
         // Display numeric details
-        super.displayDetails(numericDetails);
+        detailsPanel.displayDetails(numericDetails);
+    }
+
+    @Override
+    public void onTableUpdateHandler(TableObserverData data) {
+        // Extract a string representation of the selected column
+        var column = data.getDetails().stream().filter(item -> item.contains("Column: ")).findFirst();
+        var stringRep = column.orElse("").replace("Column: ", "");
+
+        // Render stats if a column is selected
+        if (column.isPresent()) {
+            displayDetails(data.getDataDisplay(), stringRep);
+        }
     }
 
     // Round a number to the specified number of digits
@@ -99,5 +112,10 @@ public class StatsPanel extends DetailsPanel {
     // Compute the range of the `numericList`
     private double range(ArrayList<Double> numericList) {
         return max(numericList) - min(numericList);
+    }
+
+    // Return the DetailsPanel
+    public DetailsPanel getDetailsPanel() {
+        return detailsPanel;
     }
 }

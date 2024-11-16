@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ChartPanel extends JPanel {
+public class ChartPanel extends JPanel implements TableObserver {
 
     private final InitPanel startup = new InitPanel("Click a column in the table to view its distribution.");
 
@@ -33,6 +33,18 @@ public class ChartPanel extends JPanel {
 
         // Create and add default init message
         add(startup, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void onTableUpdateHandler(TableObserverData data) {
+        // Extract a string representation of the selected column
+        var column = data.getDetails().stream().filter(item -> item.contains("Column: ")).findFirst();
+        var stringRep = column.orElse("").replace("Column: ", "");
+
+        // Render stats if a column is selected
+        if (column.isPresent()) {
+            updateHistogram(data.getDataDisplay(), stringRep, 20);
+        }
     }
 
     private static class InitPanel extends JPanel {

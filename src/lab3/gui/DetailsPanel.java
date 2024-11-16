@@ -10,7 +10,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class DetailsPanel extends JPanel {
+public class DetailsPanel extends JPanel implements TableObserver{
 
     private final GridPanel gridPanel = new GridPanel();
 
@@ -53,6 +53,11 @@ public class DetailsPanel extends JPanel {
 
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void onTableUpdateHandler(TableObserverData data) {
+        displayDetails(data.getDetails());
     }
 
     private static class TitlePanel extends JPanel {

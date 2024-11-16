@@ -11,9 +11,9 @@ import static lab3.base.Validation.isNumeric;
 
 public class Table extends JScrollPane {
 
-    private final Consumer<ArrayList<String>> exportConsumer;
     private final BiConsumer<Integer, Boolean> sortDataConsumer;
     private final BiConsumer<Integer, Boolean> sortDataDisplayConsumer;
+    private final Consumer<ArrayList<String>> updateConsumer;
     private ArrayList<Cell> headerCells;
     private ArrayList<ArrayList<Cell>> dataCells;
     private static final int SCROLL_SPEED = 10;
@@ -24,16 +24,16 @@ public class Table extends JScrollPane {
     // Construct a new table from DataFrame input
     public Table(
             DataFrame dataDisplay,
-            Consumer<ArrayList<String>> exportConsumer,
             BiConsumer<Integer, Boolean> sortDataConsumer,
             BiConsumer<Integer, Boolean> sortDataDisplayConsumer,
+            Consumer<ArrayList<String>> updateConsumer,
             boolean sortedAscending,
             int sortColumnIndex
     ) {
 
-        this.exportConsumer = exportConsumer;
         this.sortDataConsumer = sortDataConsumer;
         this.sortDataDisplayConsumer = sortDataDisplayConsumer;
+        this.updateConsumer = updateConsumer;
         this.sortColumnIndex = sortColumnIndex;
         this.sortedAscending = sortedAscending;
 
@@ -141,7 +141,7 @@ public class Table extends JScrollPane {
             cellInfo.add("Variable: " + columnName);
             cellInfo.add("Type: ".concat(cellNumeric ? "Numeric" : "String"));
             cellInfo.add("Index: (" + cellRowIndex + ", " + cellColumnIndex + ")");
-            exportConsumer.accept(cellInfo);
+            updateConsumer.accept(cellInfo);
         }
 
         // Process header cells
@@ -159,7 +159,7 @@ public class Table extends JScrollPane {
             cellInfo.add("Column: " + columnName);
             cellInfo.add("Size: " + dataDisplay.getColumnAtIndex(cellColumnIndex).size());
             cellInfo.add("Sorted: ".concat(sortedAscending ? "Ascending" : "Descending"));
-            exportConsumer.accept(cellInfo);
+            updateConsumer.accept(cellInfo);
         }
 
         // Set current selection

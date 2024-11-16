@@ -15,10 +15,11 @@ import java.util.function.Consumer;
 
 public class TablePanel extends JPanel {
 
-    private Consumer<ArrayList<String>> exportConsumer;
     private BiConsumer<Integer, Boolean> sortDataConsumer;
     private BiConsumer<Integer, Boolean> sortDataDisplayConsumer;
     private Table table;
+    private final ArrayList<TableObserver> tableObservers = new ArrayList<>();
+    private Consumer<ArrayList<String>> updateConsumer;
 
     // Construct a new TablePanel from data
     public TablePanel(DataFrame dataDisplay) {
@@ -35,12 +36,6 @@ public class TablePanel extends JPanel {
         setBorder(border);
 
         // Reset the table
-        resetTable(dataDisplay, getSortedAscending());
-    }
-
-    // Set the update consumer
-    public void setExportConsumer(Consumer<ArrayList<String>> exportConsumer, DataFrame dataDisplay) {
-        this.exportConsumer = exportConsumer;
         resetTable(dataDisplay, getSortedAscending());
     }
 
@@ -62,6 +57,9 @@ public class TablePanel extends JPanel {
         String selectedColumn = null;
         int sortColumnIndex = -1;
 
+        // Update consumer for observers
+        setUpdateConsumer(dataDisplay);
+
         // Get the selected cell if table not null
         if (table != null) {
             selectedColumn = table.getSelectedColumn();
@@ -72,7 +70,7 @@ public class TablePanel extends JPanel {
         removeAll();
 
         // Add new Table component from data and exportConsumer
-        table = new Table(dataDisplay, exportConsumer, sortDataConsumer, sortDataDisplayConsumer, sortedAscending, sortColumnIndex);
+        table = new Table(dataDisplay, sortDataConsumer, sortDataDisplayConsumer, updateConsumer, sortedAscending, sortColumnIndex);
         add(table);
 
         // Export the current selected cell info if not null
@@ -97,5 +95,24 @@ public class TablePanel extends JPanel {
     // Return the selected column
     public String getSortColumn() {
         return table.getSelectedColumn();
+    }
+
+    // Add a table observer
+    public void addTableObserver(TableObserver observer) {
+        tableObservers.add(observer);
+    }
+
+    // Update the TableObservers
+    public void updateTableObservers(DataFrame dataDisplay, ArrayList<String> details) {
+
+        TableObserverData data = new TableObserverData(dataDisplay, details);
+
+        for (TableObserver observer : tableObservers)
+            observer.onTableUpdateHandler(data);
+    }
+
+    // Update the updateConsumer
+    public void setUpdateConsumer(DataFrame dataDisplay) {
+        this.updateConsumer = details -> updateTableObservers(dataDisplay, details);
     }
 }

@@ -15,9 +15,11 @@ For this portion of the lab, the Observer and Decorator design patterns were imp
 Observers that update whenever the table in `TablePanel` is updated. In this example, 
 the `TablePanel` class is the publisher and the `StatsPanel`, `DetailsPanel`, and 
 `ChartPanel` classes are the subscribers. The subscribers now implement the 
-`ActionListener` class and contain the method `actionPerformed(ActionEvent e)` that 
-defines custom behavior that operates on the data stored within the `ActionEvent`. 
-Each subscriber was added to the `TablePanel` as an `ActionListener`, and whenever the
+`TableObserver` interface and contain the method `onTableUpdateHandler(TableObserverData data)`
+that defines custom behavior that operates on the data stored within the `ActionEvent`.
+`TableObserverData` is a new data structure that has a `dataDisplay` field that holds the
+display data, and a `details` field that holds the details for the `DetailsPanel`.
+Each subscriber was added to the `TablePanel` as a `TableObserver`, and whenever the
 table is updated, `TablePanel` sends an update to all subscribers.
 * **Decorator:** The `StatsPanel` class was converted to a Decorator for `DetailsPanel`.
 Instead of extending `DetailsPanel`, `StatsPanel` now *has* a `DetailsPanel` field and
