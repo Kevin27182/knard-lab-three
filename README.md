@@ -20,7 +20,8 @@ that defines custom behavior that operates on the data stored within the `Action
 `TableObserverData` is a new data structure that has a `dataDisplay` field that holds the
 display data, and a `details` field that holds the details for the `DetailsPanel`.
 Each subscriber was added to the `TablePanel` as a `TableObserver`, and whenever the
-table is updated, `TablePanel` sends an update to all subscribers.
+table is updated, `TablePanel` sends an update to all subscribers. This change allowed for the
+removal of a lambda expression from `Main.java`, making the class easier to read.
 * **Decorator:** The `StatsPanel` class was converted to a Decorator for `DetailsPanel`.
 Instead of extending `DetailsPanel`, `StatsPanel` now *has* a `DetailsPanel` field and
 acts as a `DetailsPanel` wrapper class. The methods in `StatsPanel` now operate on the
