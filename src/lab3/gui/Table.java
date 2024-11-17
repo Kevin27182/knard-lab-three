@@ -1,3 +1,8 @@
+
+// Title: Table.java
+// Author: Kevin Nard
+// Produces a tabular Table composed of Cells
+
 package lab3.gui;
 
 import lab3.base.DataFrame;

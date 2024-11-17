@@ -1,3 +1,8 @@
+
+// Title: Cell.java
+// Author: Kevin Nard
+// Holds a visual representation of a piece of data
+
 package lab3.gui;
 
 import javax.swing.*;

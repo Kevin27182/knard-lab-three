@@ -1,3 +1,8 @@
+
+// Title: Validation.java
+// Author: Kevin Nard
+// Contains static methods for performing data validation
+
 package lab3.base;
 
 import java.util.regex.Pattern;
